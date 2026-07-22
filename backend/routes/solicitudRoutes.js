@@ -7,11 +7,12 @@ const {
   actualizarSolicitud,
   eliminarSolicitud,
 } = require("../controllers/solicitudController");
+const { proteger, autorizar } = require("../middleware/auth");
 
-router.post("/", crearSolicitud);
-router.get("/", listarSolicitudes);
-router.get("/:id", obtenerSolicitud);
-router.put("/:id", actualizarSolicitud);
-router.delete("/:id", eliminarSolicitud);
+router.post("/", proteger, crearSolicitud);
+router.get("/", proteger, listarSolicitudes);
+router.get("/:id", proteger, obtenerSolicitud);
+router.put("/:id", proteger, autorizar("operador", "admin"), actualizarSolicitud);
+router.delete("/:id", proteger, autorizar("admin"), eliminarSolicitud);
 
 module.exports = router;

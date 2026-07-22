@@ -7,11 +7,12 @@ const {
   actualizarEvento,
   eliminarEvento,
 } = require("../controllers/eventoController");
+const { proteger, autorizar } = require("../middleware/auth");
 
-router.post("/", crearEvento);
-router.get("/", listarEventos);
-router.get("/:id", obtenerEvento);
-router.put("/:id", actualizarEvento);
-router.delete("/:id", eliminarEvento);
+router.post("/", proteger, autorizar("operador", "admin"), crearEvento);
+router.get("/", proteger, listarEventos);
+router.get("/:id", proteger, obtenerEvento);
+router.put("/:id", proteger, autorizar("operador", "admin"), actualizarEvento);
+router.delete("/:id", proteger, autorizar("admin"), eliminarEvento);
 
 module.exports = router;
