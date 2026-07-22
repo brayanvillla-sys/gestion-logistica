@@ -1,1 +1,42 @@
-<p>registro works!</p>
+<div class="caja">
+  <h1>Crear cuenta</h1>
+  <p class="sub">Registra tu dependencia en el sistema</p>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <label>
+    Nombre completo
+    <input type="text" [(ngModel)]="nombre" name="nombre" placeholder="María González" />
+  </label>
+
+  <label>
+    Correo
+    <input type="email" [(ngModel)]="email" name="email" placeholder="nombre@risaralda.gov.co" />
+  </label>
+
+  <label>
+    Contraseña
+    <input type="password" [(ngModel)]="password" name="password" placeholder="Mínimo 6 caracteres" />
+  </label>
+
+  <label>
+    Dependencia
+    <input type="text" [(ngModel)]="dependencia" name="dependencia" placeholder="Secretaría de Salud" />
+  </label>
+
+  <label>
+    Rol
+    <select [(ngModel)]="rol" name="rol">
+      <option value="secretaria">Secretaría</option>
+      <option value="operador">Operador</option>
+    </select>
+  </label>
+
+  <button (click)="crearCuenta()" [disabled]="cargando()">
+    {{ cargando() ? 'Creando...' : 'Crear cuenta' }}
+  </button>
+
+  <p class="pie">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>
+</div>

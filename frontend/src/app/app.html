@@ -2,10 +2,18 @@
   <a routerLink="/" class="marca">Gestión Logística</a>
   <div class="enlaces">
     <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
-    <a routerLink="/panel" routerLinkActive="activo">Panel</a>
-    <a routerLink="/perfil" routerLinkActive="activo">Perfil</a>
+    @if (auth.autenticado()) {
+      <a routerLink="/panel" routerLinkActive="activo">Panel</a>
+      <a routerLink="/perfil" routerLinkActive="activo">Perfil</a>
+    }
     <a routerLink="/sobre-nosotros" routerLinkActive="activo">Nosotros</a>
-    <a routerLink="/login" class="btn-login">Iniciar sesión</a>
+
+    @if (auth.autenticado()) {
+      <span class="usuario">{{ auth.usuario()?.nombre }}</span>
+      <button class="btn-salir" (click)="auth.logout()">Salir</button>
+    } @else {
+      <a routerLink="/login" class="btn-login">Iniciar sesión</a>
+    }
   </div>
 </nav>
 

@@ -49,3 +49,19 @@
   margin: 0 auto;
   padding: 40px 24px;
 }
+
+.usuario {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.btn-salir {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
