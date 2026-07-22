@@ -1,0 +1,14 @@
+<nav class="navbar">
+  <a routerLink="/" class="marca">Gestión Logística</a>
+  <div class="enlaces">
+    <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+    <a routerLink="/panel" routerLinkActive="activo">Panel</a>
+    <a routerLink="/perfil" routerLinkActive="activo">Perfil</a>
+    <a routerLink="/sobre-nosotros" routerLinkActive="activo">Nosotros</a>
+    <a routerLink="/login" class="btn-login">Iniciar sesión</a>
+  </div>
+</nav>
+
+<main class="contenido">
+  <router-outlet />
+</main>
