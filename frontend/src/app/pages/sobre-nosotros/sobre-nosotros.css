@@ -1,0 +1,93 @@
+.intro {
+  margin-bottom: 40px;
+}
+
+.intro h1 {
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.intro p {
+  color: #6b7280;
+  font-size: 16px;
+  line-height: 1.65;
+  max-width: 620px;
+}
+
+.bloque {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 18px;
+}
+
+.bloque h2 {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+.bloque p {
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.tecnologias {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.grupo h3 {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.grupo ul {
+  list-style: none;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.grupo li {
+  padding: 5px 0;
+}
+
+.autor {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #111827;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.autor h3 {
+  font-size: 16px;
+  margin-bottom: 3px;
+}
+
+.autor p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.ubicacion {
+  font-size: 13px !important;
+  color: #9ca3af !important;
+}

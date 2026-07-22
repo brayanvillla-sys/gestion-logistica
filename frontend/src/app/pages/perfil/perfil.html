@@ -1,1 +1,42 @@
-<p>perfil works!</p>
+<h1>Mi perfil</h1>
+
+@if (cargando()) {
+  <p class="vacio">Cargando...</p>
+} @else if (error()) {
+  <div class="alerta">{{ error() }}</div>
+} @else if (datos(); as u) {
+  <div class="columnas">
+    <section class="tarjeta">
+      <div class="avatar">{{ u.nombre.charAt(0) }}</div>
+      <h2>{{ u.nombre }}</h2>
+      <p class="correo">{{ u.email }}</p>
+      <span class="badge">{{ etiquetaRol(u.rol) }}</span>
+    </section>
+
+    <section class="tarjeta detalle">
+      <h3>Información de la cuenta</h3>
+      <dl>
+        <dt>Dependencia</dt>
+        <dd>{{ u.dependencia || 'No asignada' }}</dd>
+
+        <dt>Rol</dt>
+        <dd>{{ etiquetaRol(u.rol) }}</dd>
+
+        <dt>Estado</dt>
+        <dd>{{ u.activo ? 'Activo' : 'Inactivo' }}</dd>
+
+        <dt>Registrado</dt>
+        <dd>{{ u.createdAt | date: 'dd/MM/yyyy' }}</dd>
+      </dl>
+
+      <h3 class="sep">Permisos</h3>
+      <ul class="permisos">
+        @for (p of permisos(u.rol); track p) {
+          <li>{{ p }}</li>
+        }
+      </ul>
+
+      <button class="btn-salir" (click)="auth.logout()">Cerrar sesión</button>
+    </section>
+  </div>
+}
