@@ -1,0 +1,67 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.marca {
+  font-weight: 700;
+  font-size: 18px;
+  color: #111827;
+  text-decoration: none;
+}
+
+.enlaces {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.enlaces a {
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.enlaces a:hover {
+  color: #111827;
+}
+
+.enlaces a.activo {
+  color: #111827;
+  font-weight: 600;
+}
+
+.btn-login {
+  background: #111827;
+  color: #ffffff !important;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.usuario {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.btn-salir {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.contenido {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}

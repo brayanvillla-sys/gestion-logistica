@@ -1,0 +1,91 @@
+<header class="encabezado">
+  <div>
+    <h1>Solicitudes de servicios</h1>
+    <p class="sub">{{ solicitudes().length }} solicitud(es) registrada(s)</p>
+  </div>
+  <button class="btn-primario" (click)="abrirNueva()">Nueva solicitud</button>
+</header>
+
+@if (error()) {
+  <div class="alerta">{{ error() }}</div>
+}
+
+<div class="filtros">
+  <button [class.activo]="filtro() === ''" (click)="cambiarFiltro('')">Todas</button>
+  <button [class.activo]="filtro() === 'pendiente'" (click)="cambiarFiltro('pendiente')">Pendientes</button>
+  <button [class.activo]="filtro() === 'aprobada'" (click)="cambiarFiltro('aprobada')">Aprobadas</button>
+  <button [class.activo]="filtro() === 'rechazada'" (click)="cambiarFiltro('rechazada')">Rechazadas</button>
+</div>
+
+@if (mostrarFormulario()) {
+  <section class="formulario">
+    <h2>{{ editandoId() ? 'Editar solicitud' : 'Nueva solicitud' }}</h2>
+    <div class="grid">
+      <label>Nombre del evento
+        <input type="text" [(ngModel)]="nombreEvento" placeholder="Jornada de salud rural" />
+      </label>
+      <label>Fecha
+        <input type="date" [(ngModel)]="fechaEvento" />
+      </label>
+      <label>Lugar
+        <input type="text" [(ngModel)]="lugar" placeholder="Corregimiento La Bella" />
+      </label>
+      <label>Dependencia
+        <input type="text" [(ngModel)]="dependencia" placeholder="Secretaría de Salud" />
+      </label>
+      <label>Contacto
+        <input type="text" [(ngModel)]="contactoNombre" />
+      </label>
+      <label>Teléfono
+        <input type="text" [(ngModel)]="contactoTelefono" />
+      </label>
+    </div>
+
+    <h3>¿Qué necesitas?</h3>
+    @for (item of items; track $index) {
+      <div class="fila-item">
+        <input type="text" [(ngModel)]="item.categoria" placeholder="Refrigerios" />
+        <input type="number" [(ngModel)]="item.cantidad" min="1" placeholder="Cant." />
+        <input type="text" [(ngModel)]="item.descripcion" placeholder="Descripción" />
+        <button class="btn-quitar" (click)="quitarItem($index)" [disabled]="items.length === 1">×</button>
+      </div>
+    }
+    <button class="btn-agregar" (click)="agregarItem()">+ Agregar ítem</button>
+
+    <div class="acciones-form">
+      <button class="btn-primario" (click)="guardar()">Guardar</button>
+      <button class="btn-secundario" (click)="cancelar()">Cancelar</button>
+    </div>
+  </section>
+}
+
+@if (cargando()) {
+  <p class="vacio">Cargando...</p>
+} @else if (solicitudes().length === 0) {
+  <p class="vacio">No hay solicitudes todavía.</p>
+} @else {
+  <div class="tabla">
+    @for (s of solicitudes(); track s._id) {
+      <article class="fila">
+        <div class="info">
+          <h3>{{ s.nombreEvento }}</h3>
+          <p class="meta">{{ s.fechaEvento | date: 'dd/MM/yyyy' }} · {{ s.lugar }} · {{ s.dependencia }}</p>
+          <p class="items">{{ s.items.length }} ítem(s) · {{ totalItems(s) }} unidades totales</p>
+        </div>
+        <span class="estado" [class]="'e-' + s.estado">{{ s.estado }}</span>
+        <div class="acciones">
+          @if (auth.rol() === 'operador' || auth.rol() === 'admin') {
+            @if (s.estado === 'pendiente') {
+              <button class="btn-mini aprobar" (click)="cambiarEstado(s, 'aprobada')">Aprobar</button>
+              <button class="btn-mini rechazar" (click)="cambiarEstado(s, 'rechazada')">Rechazar</button>
+            }
+            <button class="btn-mini" (click)="editar(s)">Editar</button>
+          }
+          @if (auth.rol() === 'admin') {
+            <button class="btn-mini eliminar" (click)="eliminar(s)">Eliminar</button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+}
