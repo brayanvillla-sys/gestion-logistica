@@ -1,5 +1,17 @@
 const mongoose = require("mongoose");
 
+// Ítems del evento: los mismos de la solicitud, pero el operador les pone precio y orden
+const itemEventoSchema = new mongoose.Schema(
+  {
+    numero: { type: Number, default: 0 },
+    categoria: { type: String, required: true, trim: true },
+    descripcion: { type: String, trim: true, default: "" },
+    cantidad: { type: Number, required: true, min: 1 },
+    valorUnidad: { type: Number, default: 0, min: 0 },
+  },
+  { _id: false }
+);
+
 const eventoSchema = new mongoose.Schema(
   {
     solicitud: {
@@ -21,6 +33,11 @@ const eventoSchema = new mongoose.Schema(
       required: [true, "El lugar es obligatorio"],
       trim: true,
     },
+    dependencia: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     responsable: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",
@@ -35,7 +52,42 @@ const eventoSchema = new mongoose.Schema(
       default: 0,
       min: [0, "El valor no puede ser negativo"],
     },
+    proyecto: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    rubro: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    codigoAlojamiento: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     observaciones: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    items: {
+      type: [itemEventoSchema],
+      default: [],
+    },
+    fotos: [
+      {
+        url: { type: String, required: true },
+        nombre: { type: String, default: "" },
+        subidaEn: { type: Date, default: Date.now },
+      },
+    ],
+    firma: {
+      type: String,
+      default: "",
+    },
+    firmanteNombre: {
       type: String,
       trim: true,
       default: "",

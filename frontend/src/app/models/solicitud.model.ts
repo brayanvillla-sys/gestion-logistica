@@ -23,6 +23,22 @@ export interface Solicitud {
   updatedAt?: string;
 }
 
+// Ítem del evento: el operador le pone precio y orden
+export interface ItemEvento {
+  numero?: number;
+  categoria: string;
+  descripcion?: string;
+  cantidad: number;
+  valorUnidad?: number;
+}
+
+export interface FotoEvento {
+  _id?: string;
+  url: string;
+  nombre?: string;
+  subidaEn?: string;
+}
+
 export type EstadoEvento = 'programado' | 'en_ejecucion' | 'finalizado' | 'certificado';
 
 export interface Evento {
@@ -31,8 +47,16 @@ export interface Evento {
   nombre: string;
   fecha: string;
   lugar: string;
+  dependencia?: string;
   responsable?: string | Usuario;
   estado?: EstadoEvento;
   valorTotal?: number;
+  proyecto?: string;
+  rubro?: string;
+  codigoAlojamiento?: string;
   observaciones?: string;
+  items?: ItemEvento[];
+  fotos?: FotoEvento[];
+  firma?: string;
+  firmanteNombre?: string;
 }

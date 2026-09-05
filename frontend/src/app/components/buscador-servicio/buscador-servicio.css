@@ -1,0 +1,62 @@
+.buscador {
+  position: relative;
+}
+
+.buscador input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.buscador input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.lista {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 20;
+  padding: 4px;
+}
+
+.lista li {
+  padding: 9px 12px;
+  font-size: 14px;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.lista li:hover {
+  background: #f3f4f6;
+}
+
+.lista li.agregar {
+  color: #059669;
+  font-weight: 500;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 2px;
+}
+
+.lista li.vacio-lista {
+  color: #9ca3af;
+  cursor: default;
+}
+
+.lista li.vacio-lista:hover {
+  background: none;
+}

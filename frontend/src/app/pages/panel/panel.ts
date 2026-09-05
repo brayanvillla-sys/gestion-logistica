@@ -4,16 +4,76 @@ import { DatePipe } from '@angular/common';
 import { SolicitudService } from '../../services/solicitud';
 import { Auth } from '../../services/auth';
 import { Solicitud, Item } from '../../models/solicitud.model';
+import { BuscadorServicio } from '../../components/buscador-servicio/buscador-servicio';
 
 @Component({
   selector: 'app-panel',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, BuscadorServicio],
   templateUrl: './panel.html',
   styleUrl: './panel.css',
 })
 export class Panel implements OnInit {
   private servicio = inject(SolicitudService);
   auth = inject(Auth);
+
+  categorias = [
+    'Refrigerios',
+    'Almuerzos',
+    'Estación de café',
+    'Sillas',
+    'Mesas',
+    'Sonido',
+    'Carpas / toldos',
+    'Tarima',
+    'Video beam / pantalla',
+    'Decoración',
+    'Circuito cerrado de TV',
+    'Transmisión en vivo',
+  ];
+
+  plantillas: { nombre: string; items: Item[] }[] = [
+    {
+      nombre: 'Jornada de salud',
+      items: [
+        { categoria: 'Refrigerios', cantidad: 120, descripcion: 'Sándwich y jugo' },
+        { categoria: 'Sillas', cantidad: 150, descripcion: 'Plásticas apilables' },
+        { categoria: 'Mesas', cantidad: 10, descripcion: 'Para atención' },
+        { categoria: 'Carpas / toldos', cantidad: 4, descripcion: 'Puntos de atención' },
+        { categoria: 'Sonido', cantidad: 1, descripcion: 'Equipo con 2 micrófonos' },
+      ],
+    },
+    {
+      nombre: 'Capacitación',
+      items: [
+        { categoria: 'Sillas', cantidad: 40, descripcion: 'Auditorio' },
+        { categoria: 'Mesas', cantidad: 5, descripcion: 'Mesa principal' },
+        { categoria: 'Video beam / pantalla', cantidad: 1, descripcion: 'Proyección' },
+        { categoria: 'Sonido', cantidad: 1, descripcion: 'Micrófono inalámbrico' },
+        { categoria: 'Estación de café', cantidad: 1, descripcion: 'Café permanente' },
+      ],
+    },
+    {
+      nombre: 'Evento masivo',
+      items: [
+        { categoria: 'Sillas', cantidad: 300, descripcion: 'Público' },
+        { categoria: 'Tarima', cantidad: 1, descripcion: 'Escenario principal' },
+        { categoria: 'Sonido', cantidad: 1, descripcion: 'Line array + consola' },
+        { categoria: 'Carpas / toldos', cantidad: 6, descripcion: 'Logística y stands' },
+        { categoria: 'Refrigerios', cantidad: 300, descripcion: 'Hidratación' },
+        { categoria: 'Decoración', cantidad: 1, descripcion: 'Pendones y ambientación' },
+      ],
+    },
+    {
+      nombre: 'Reunión / rueda de prensa',
+      items: [
+        { categoria: 'Sillas', cantidad: 30, descripcion: 'Asistentes' },
+        { categoria: 'Mesas', cantidad: 2, descripcion: 'Mesa directiva' },
+        { categoria: 'Sonido', cantidad: 1, descripcion: 'Micrófonos de mesa' },
+        { categoria: 'Estación de café', cantidad: 1, descripcion: 'Café y agua' },
+        { categoria: 'Decoración', cantidad: 1, descripcion: 'Backing institucional' },
+      ],
+    },
+  ];
 
   solicitudes = signal<Solicitud[]>([]);
   cargando = signal(false);
@@ -60,7 +120,18 @@ export class Panel implements OnInit {
     this.editandoId.set(null);
     this.dependencia = this.auth.usuario()?.dependencia ?? '';
     this.contactoNombre = this.auth.usuario()?.nombre ?? '';
+    const enUnaSemana = new Date();
+    enUnaSemana.setDate(enUnaSemana.getDate() + 7);
+    this.fechaEvento = enUnaSemana.toISOString().substring(0, 10);
     this.mostrarFormulario.set(true);
+  }
+
+  aplicarPlantilla(indice: number) {
+    const plantilla = this.plantillas[indice];
+    this.items = plantilla.items.map((i) => ({ ...i }));
+    if (!this.nombreEvento) {
+      this.nombreEvento = plantilla.nombre;
+    }
   }
 
   editar(s: Solicitud) {
@@ -82,6 +153,10 @@ export class Panel implements OnInit {
   quitarItem(indice: number) {
     if (this.items.length === 1) return;
     this.items = this.items.filter((_, i) => i !== indice);
+  }
+
+  actualizarCategoria(indice: number, valor: string) {
+    this.items[indice].categoria = valor;
   }
 
   guardar() {

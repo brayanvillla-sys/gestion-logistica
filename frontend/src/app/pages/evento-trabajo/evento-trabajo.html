@@ -1,0 +1,307 @@
+@if (cargando()) {
+  <p class="vacio">Cargando evento...</p>
+} @else if (error()) {
+  <div class="alerta">{{ error() }}</div>
+  <a routerLink="/operacion" class="volver">← Volver a operación</a>
+} @else if (evento(); as ev) {
+
+  <a routerLink="/operacion" class="volver">← Volver a operación</a>
+
+  <header class="cabecera">
+    <h1>{{ ev.nombre }}</h1>
+    <p class="sub">{{ ev.fecha | date: 'dd/MM/yyyy' }} · {{ ev.lugar }} · {{ ev.dependencia }}</p>
+  </header>
+
+  @if (mensaje()) {
+    <div class="mensaje-ok">{{ mensaje() }}</div>
+  }
+
+  <div class="split">
+
+    <div class="col-form">
+
+      <section class="bloque">
+        <h2>Datos del documento</h2>
+        <div class="grid2">
+          <label>Proyecto
+            <input type="text" [(ngModel)]="ev.proyecto" placeholder="2024003660002" />
+          </label>
+          <label>Rubro
+            <input type="text" [(ngModel)]="ev.rubro" placeholder="1104-2.3.2.02.02.006-412" />
+          </label>
+          <label>Código / Alojamiento
+            <input type="text" [(ngModel)]="ev.codigoAlojamiento" placeholder="63111 ALOJAMIENTO" />
+          </label>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <h2>Fotos de evidencia</h2>
+        <label class="btn-subir">
+          {{ subiendoFotos() ? 'Subiendo...' : '+ Subir fotos' }}
+          <input type="file" accept="image/*" multiple (change)="alSeleccionarFotos($event)" hidden [disabled]="subiendoFotos()" />
+        </label>
+        @if (ev.fotos && ev.fotos.length > 0) {
+          <div class="galeria">
+            @for (foto of ev.fotos; track foto._id) {
+              <div class="miniatura">
+                <img [src]="servidor + foto.url" [alt]="foto.nombre" />
+                <button class="btn-borrar-foto" (click)="eliminarFoto(foto._id)">×</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="sin-fotos">Aún no hay fotos.</p>
+        }
+      </section>
+
+      <section class="bloque">
+        <h2>Asignar precios (catálogo COCONI)</h2>
+        <p class="nota">Por cada ítem, busca el servicio del catálogo. El precio se llena solo.</p>
+
+        @for (item of ev.items; track $index) {
+          <div class="fila-precio">
+            <div class="pedido">
+              <strong>{{ item.numero }}.</strong> Pidió: <em>{{ item.categoria }}</em>
+              @if (item.descripcion && item.descripcion !== item.categoria) {
+                <div class="asignado">→ {{ item.descripcion }}</div>
+              }
+            </div>
+            <div class="celda-catalogo">
+              <input
+                type="text"
+                [ngModel]="busqueda[$index]"
+                (ngModelChange)="busqueda[$index] = $event; abrirBuscador($index)"
+                (focus)="abrirBuscador($index)"
+                placeholder="Buscar servicio..."
+              />
+              @if (abierto() === $index) {
+                <ul class="lista-catalogo">
+                  @for (serv of opcionesFiltradas($index); track serv.codigo) {
+                    <li (mousedown)="elegirServicio($index, serv)">
+                      <span><strong>#{{ serv.codigo }}</strong> {{ serv.descripcion.length > 80 ? serv.descripcion.slice(0,80) + '…' : serv.descripcion }}</span>
+                      <span class="precio">{{ serv.valorUnidad | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+            <input type="number" class="in-cant" [(ngModel)]="item.cantidad" min="1" />
+            <span class="v-total">{{ totalItem(item) | currency: 'COP':'symbol-narrow':'1.0-0' }}</span>
+            <div class="orden">
+              <button (click)="subir($index)" [disabled]="$index === 0" title="Subir">↑</button>
+              <button (click)="bajar($index)" [disabled]="$index === ev.items!.length - 1" title="Bajar">↓</button>
+              <button (click)="quitarItem($index)" title="Quitar" class="btn-quitar-item">×</button>
+            </div>
+          </div>
+        }
+
+        <button class="btn-agregar-item" (click)="agregarItem()">+ Agregar ítem</button>
+
+        <div class="total-final">TOTAL: <strong>{{ totalGeneral() | currency: 'COP':'symbol-narrow':'1.0-0' }}</strong></div>
+      </section>
+
+      <div class="barra-guardar">
+        <button class="btn-guardar" (click)="guardar()" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Guardar todo' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="col-preview">
+
+      <button class="btn-paquete" (click)="descargarPaquete()">📦 Descargar paquete completo (Certificación + Fotos + Solicitud)</button>
+
+      <div class="preview-head">
+        <h3>Certificación</h3>
+        <button class="btn-pdf" (click)="descargarPdf('hoja-certificacion', 'Certificacion-' + ev.nombre)">Descargar PDF</button>
+      </div>
+
+      <div class="hoja" id="hoja-certificacion">
+        <table class="doc">
+          <tr>
+            <td class="celda-escudo" rowspan="2">
+              <img [src]="escudo" class="doc-escudo" />
+              <div class="pie-escudo">Gobernación de Risaralda</div>
+            </td>
+            <td class="celda-contrato" colspan="2">
+              "PRESTACIÓN DE SERVICIOS PARA LA ORGANIZACIÓN, ADMINISTRACIÓN Y EJECUCIÓN DE LAS ACCIONES LOGÍSTICAS TALES COMO PUBLICIDAD, PROMOCIÓN, DIVULGACIÓN, ALOJAMIENTO, ACTIVIDADES INSTITUCIONALES, TALLERES DE REUNIONES DE TRABAJO Y DEMÁS ACTIVIDADES QUE REQUIERAN LAS SECRETARÍAS DEL DEPARTAMENTO DE RISARALDA"
+            </td>
+          </tr>
+          <tr>
+            <td class="titulo-doc" colspan="2">CERTIFICACIÓN DE SERVICIOS PRESTADOS A ENTERA SATISFACCIÓN<br><span class="email">E-MAIL: LOGISTICAGOBERNACIONRDA2024&#64;GMAIL.COM</span></td>
+          </tr>
+          <tr>
+            <td class="et">SECRETARIA ENCARGADA:</td>
+            <td class="val" colspan="2">{{ ev.dependencia }}</td>
+          </tr>
+          <tr>
+            <td class="et">NOMBRE DEL EVENTO:</td>
+            <td class="val" colspan="2">{{ ev.nombre }}</td>
+          </tr>
+          <tr>
+            <td class="et">FECHA:</td>
+            <td class="val" colspan="2">{{ ev.fecha | date: 'dd \'DE\' MMMM \'DE\' yyyy' }}</td>
+          </tr>
+          <tr>
+            <td class="et">LUGAR:</td>
+            <td class="val" colspan="2">{{ ev.lugar }}</td>
+          </tr>
+          <tr>
+            <td class="cod" colspan="3">{{ ev.codigoAlojamiento }}</td>
+          </tr>
+          <tr>
+            <td class="pr" colspan="1">PROYECTO. {{ ev.proyecto }}</td>
+            <td class="pr" colspan="2">RUBRO: {{ ev.rubro }}</td>
+          </tr>
+        </table>
+
+        <table class="doc doc-items">
+          <thead><tr><th style="width:12%">ÍTEM</th><th>REQUERIMIENTOS</th><th style="width:22%">CANTIDAD</th></tr></thead>
+          <tbody>
+            @for (item of ev.items; track $index) {
+              <tr>
+                <td class="c">{{ item.numero }}</td>
+                <td>{{ item.descripcion || item.categoria }}</td>
+                <td class="c">{{ item.cantidad }}</td>
+              </tr>
+            }
+            <tr class="fila-vacia"><td></td><td></td><td></td></tr>
+            <tr class="fila-vacia"><td></td><td></td><td></td></tr>
+            <tr class="fila-firma">
+              <td colspan="3">
+                <div class="linea-firma"></div>
+                <div class="nombre-firma">{{ ev.firmanteNombre || 'LITZA FERNANDA ROLDAN RAMÍREZ' }}</div>
+                <div class="cargo-firma">Vo.Bo. Supervisora</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="preview-head" style="margin-top:24px">
+        <h3>Fotos de evidencia</h3>
+      </div>
+
+      <div class="hoja" id="hoja-fotos">
+        <table class="doc">
+          <tr>
+            <td class="celda-escudo" rowspan="2">
+              <img [src]="escudo" class="doc-escudo" />
+              <div class="pie-escudo">Gobernación de Risaralda</div>
+            </td>
+            <td class="celda-contrato">
+              "PRESTACIÓN DE SERVICIOS PARA LA ORGANIZACIÓN, ADMINISTRACIÓN Y EJECUCIÓN DE LAS ACCIONES LOGÍSTICAS TALES COMO PUBLICIDAD, PROMOCIÓN, DIVULGACIÓN, ALOJAMIENTO, ACTIVIDADES INSTITUCIONALES, TALLERES DE REUNIONES DE TRABAJO Y DEMÁS ACTIVIDADES QUE REQUIERAN LAS SECRETARÍAS DEL DEPARTAMENTO DE RISARALDA"
+            </td>
+          </tr>
+          <tr>
+            <td class="titulo-doc">REGISTRO FOTOGRÁFICO - EVIDENCIA</td>
+          </tr>
+          <tr>
+            <td class="et">NOMBRE DEL EVENTO:</td>
+            <td class="val">{{ ev.nombre }}</td>
+          </tr>
+          <tr>
+            <td class="et">FECHA:</td>
+            <td class="val">{{ ev.fecha | date: 'dd \'DE\' MMMM \'DE\' yyyy' }}</td>
+          </tr>
+          <tr>
+            <td class="et">LUGAR:</td>
+            <td class="val">{{ ev.lugar }}</td>
+          </tr>
+        </table>
+
+        @if (ev.fotos && ev.fotos.length > 0) {
+          <div class="doc-fotos">
+            @for (foto of ev.fotos; track foto._id) {
+              <img [src]="servidor + foto.url" class="doc-foto" />
+            }
+          </div>
+        } @else {
+          <p class="doc-sin-fotos">Sin fotos de evidencia.</p>
+        }
+      </div>
+
+      <div class="preview-head" style="margin-top:24px">
+        <h3>Solicitud</h3>
+        <button class="btn-pdf" (click)="descargarPdf('hoja-solicitud', 'Solicitud-' + ev.nombre)">Descargar PDF</button>
+      </div>
+
+      <div class="hoja" id="hoja-solicitud">
+        <table class="doc">
+          <tr>
+            <td class="celda-escudo" rowspan="2">
+              <img [src]="escudo" class="doc-escudo" />
+              <div class="pie-escudo">Gobernación de Risaralda</div>
+            </td>
+            <td class="celda-contrato" colspan="4">
+              "PRESTACIÓN DE SERVICIOS PARA LA ORGANIZACIÓN, ADMINISTRACIÓN Y EJECUCIÓN DE LAS ACCIONES LOGÍSTICAS TALES COMO PUBLICIDAD, PROMOCIÓN, DIVULGACIÓN, ALOJAMIENTO, ACTIVIDADES INSTITUCIONALES, TALLERES DE REUNIONES DE TRABAJO Y DEMÁS ACTIVIDADES QUE REQUIERAN LAS SECRETARÍAS DEL DEPARTAMENTO DE RISARALDA"
+            </td>
+          </tr>
+          <tr>
+            <td class="titulo-doc" colspan="4">SOLICITUD DE SERVICIOS<br><span class="email">E-MAIL: LOGISTICAGOBERNACIONRDA2024&#64;GMAIL.COM</span></td>
+          </tr>
+          <tr>
+            <td class="et">SECRETARIA ENCARGADA:</td>
+            <td class="val" colspan="4">{{ ev.dependencia }}</td>
+          </tr>
+          <tr>
+            <td class="et">NOMBRE DEL EVENTO:</td>
+            <td class="val" colspan="4">{{ ev.nombre }}</td>
+          </tr>
+          <tr>
+            <td class="et">FECHA:</td>
+            <td class="val" colspan="4">{{ ev.fecha | date: 'dd \'DE\' MMMM \'DE\' yyyy' }}</td>
+          </tr>
+          <tr>
+            <td class="et">LUGAR:</td>
+            <td class="val" colspan="4">{{ ev.lugar }}</td>
+          </tr>
+          <tr>
+            <td class="cod" colspan="5">{{ ev.codigoAlojamiento }}</td>
+          </tr>
+          <tr>
+            <td class="pr" colspan="2">PROYECTO. {{ ev.proyecto }}</td>
+            <td class="pr" colspan="3">RUBRO: {{ ev.rubro }}</td>
+          </tr>
+        </table>
+
+        <table class="doc doc-items">
+          <thead>
+            <tr>
+              <th style="width:10%">ÍTEM</th>
+              <th>REQUERIMIENTOS</th>
+              <th style="width:15%">VALOR UNIDAD IVA INCLUIDO</th>
+              <th style="width:12%">CANTIDAD</th>
+              <th style="width:15%">VALOR TOTAL IVA INCLUIDO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of ev.items; track $index) {
+              <tr>
+                <td class="c">{{ item.numero }}</td>
+                <td>{{ item.descripcion || item.categoria }}</td>
+                <td class="r">{{ item.valorUnidad | currency: 'COP':'symbol-narrow':'1.0-0' }}</td>
+                <td class="c">{{ item.cantidad }}</td>
+                <td class="r">{{ totalItem(item) | currency: 'COP':'symbol-narrow':'1.0-0' }}</td>
+              </tr>
+            }
+            <tr class="fila-total">
+              <td colspan="3"></td>
+              <td class="c">TOTAL</td>
+              <td class="r">{{ totalGeneral() | currency: 'COP':'symbol-narrow':'1.0-0' }}</td>
+            </tr>
+            <tr class="fila-firma">
+              <td colspan="5">
+                <div class="linea-firma"></div>
+                <div class="nombre-firma">{{ ev.firmanteNombre || 'LITZA FERNANDA ROLDAN RAMÍREZ' }}</div>
+                <div class="cargo-firma">Vo.Bo. Supervisora</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+}

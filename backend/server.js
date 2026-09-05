@@ -10,11 +10,13 @@ conectarDB();
 app.use(cors());
 app.use(express.json());
 
+// Servir las fotos subidas
+app.use("/uploads", express.static("uploads"));
+
 app.get("/", (req, res) => {
   res.json({ mensaje: "API Gestion Logistica funcionando" });
 });
 
-// Rutas
 // Rutas
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/usuarios", require("./routes/usuarioRoutes"));

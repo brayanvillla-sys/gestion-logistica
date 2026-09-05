@@ -2,10 +2,17 @@
   <a routerLink="/" class="marca">Gestión Logística</a>
   <div class="enlaces">
     <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+
     @if (auth.autenticado()) {
-      <a routerLink="/panel" routerLinkActive="activo">Panel</a>
+      @if (auth.rol() === 'secretaria') {
+        <a routerLink="/panel" routerLinkActive="activo">Mis solicitudes</a>
+      }
+      @if (auth.rol() === 'operador' || auth.rol() === 'admin') {
+        <a routerLink="/operacion" routerLinkActive="activo">Operación</a>
+      }
       <a routerLink="/perfil" routerLinkActive="activo">Perfil</a>
     }
+
     <a routerLink="/sobre-nosotros" routerLinkActive="activo">Nosotros</a>
 
     @if (auth.autenticado()) {

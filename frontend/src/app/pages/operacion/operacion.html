@@ -1,0 +1,45 @@
+<header class="encabezado">
+  <div>
+    <h1>Operación logística</h1>
+    <p class="sub">Aprueba solicitudes y genera los documentos para el cobro</p>
+  </div>
+</header>
+
+@if (error()) {
+  <div class="alerta">{{ error() }}</div>
+}
+
+<div class="filtros">
+  <button [class.activo]="filtro() === ''" (click)="cambiarFiltro('')">Todas</button>
+  <button [class.activo]="filtro() === 'pendiente'" (click)="cambiarFiltro('pendiente')">Pendientes</button>
+  <button [class.activo]="filtro() === 'aprobada'" (click)="cambiarFiltro('aprobada')">Aprobadas</button>
+  <button [class.activo]="filtro() === 'rechazada'" (click)="cambiarFiltro('rechazada')">Rechazadas</button>
+</div>
+
+@if (cargando()) {
+  <p class="vacio">Cargando...</p>
+} @else if (solicitudes().length === 0) {
+  <p class="vacio">No hay solicitudes.</p>
+} @else {
+  <div class="tabla">
+    @for (s of solicitudes(); track s._id) {
+      <article class="fila">
+        <div class="info">
+          <h3>{{ s.nombreEvento }}</h3>
+          <p class="meta">{{ s.fechaEvento | date: 'dd/MM/yyyy' }} · {{ s.lugar }} · {{ s.dependencia }}</p>
+          <p class="items">{{ s.items.length }} ítem(s) · {{ totalItems(s) }} unidades</p>
+        </div>
+        <span class="estado" [class]="'e-' + s.estado">{{ s.estado }}</span>
+        <div class="acciones">
+          @if (s.estado === 'pendiente') {
+            <button class="btn-mini aprobar" (click)="aprobar(s)">Aprobar</button>
+            <button class="btn-mini rechazar" (click)="rechazar(s)">Rechazar</button>
+          }
+          @if (s.estado === 'aprobada') {
+            <button class="btn-mini trabajar" (click)="irATrabajar(s)">Trabajar</button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+}

@@ -18,6 +18,11 @@ const itemSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    valorUnidad: {
+      type: Number,
+      default: 0,
+      min: [0, "El valor no puede ser negativo"],
+    },
   },
   { _id: false }
 );
@@ -42,6 +47,16 @@ const solicitudSchema = new mongoose.Schema(
       type: String,
       required: [true, "La dependencia es obligatoria"],
       trim: true,
+    },
+    proyecto: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    rubro: {
+      type: String,
+      trim: true,
+      default: "",
     },
     items: {
       type: [itemSchema],

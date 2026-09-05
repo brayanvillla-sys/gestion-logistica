@@ -20,6 +20,18 @@
 @if (mostrarFormulario()) {
   <section class="formulario">
     <h2>{{ editandoId() ? 'Editar solicitud' : 'Nueva solicitud' }}</h2>
+
+    @if (!editandoId()) {
+      <div class="plantillas">
+        <span class="plantillas-titulo">Empieza rápido con una plantilla:</span>
+        <div class="plantillas-botones">
+          @for (p of plantillas; track p.nombre; let i = $index) {
+            <button type="button" class="chip-plantilla" (click)="aplicarPlantilla(i)">{{ p.nombre }}</button>
+          }
+        </div>
+      </div>
+    }
+
     <div class="grid">
       <label>Nombre del evento
         <input type="text" [(ngModel)]="nombreEvento" placeholder="Jornada de salud rural" />
@@ -42,11 +54,21 @@
     </div>
 
     <h3>¿Qué necesitas?</h3>
+    <div class="cabecera-items">
+      <span>Servicio</span>
+      <span>Cantidad</span>
+      <span>Detalle</span>
+      <span></span>
+    </div>
     @for (item of items; track $index) {
       <div class="fila-item">
-        <input type="text" [(ngModel)]="item.categoria" placeholder="Refrigerios" />
+        <app-buscador-servicio
+          [opciones]="categorias"
+          [valor]="item.categoria"
+          (cambio)="actualizarCategoria($index, $event)"
+        />
         <input type="number" [(ngModel)]="item.cantidad" min="1" placeholder="Cant." />
-        <input type="text" [(ngModel)]="item.descripcion" placeholder="Descripción" />
+        <input type="text" [(ngModel)]="item.descripcion" placeholder="Descripción (opcional)" />
         <button class="btn-quitar" (click)="quitarItem($index)" [disabled]="items.length === 1">×</button>
       </div>
     }

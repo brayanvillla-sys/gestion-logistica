@@ -1,0 +1,26 @@
+<div class="buscador">
+  <input
+    type="text"
+    [ngModel]="texto()"
+    (ngModelChange)="texto.set($event); alEscribir()"
+    (focus)="abrir()"
+    placeholder="Buscar servicio..."
+    autocomplete="off"
+  />
+
+  @if (abierto()) {
+    <ul class="lista">
+      @for (op of filtradas; track op) {
+        <li (click)="seleccionar(op)">{{ op }}</li>
+      }
+      @if (mostrarAgregar) {
+        <li class="agregar" (click)="agregarNuevo()">
+          + Agregar "{{ texto() }}"
+        </li>
+      }
+      @if (filtradas.length === 0 && !mostrarAgregar) {
+        <li class="vacio-lista">Sin resultados</li>
+      }
+    </ul>
+  }
+</div>
