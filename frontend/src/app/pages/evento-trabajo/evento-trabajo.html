@@ -57,7 +57,7 @@
 
       <section class="bloque">
         <h2>Asignar precios (catálogo COCONI)</h2>
-        <p class="nota">Por cada ítem, busca el servicio del catálogo. El precio se llena solo.</p>
+        <p class="nota">Por cada ítem, busca el servicio por número o nombre. El precio se llena solo.</p>
 
         @for (item of ev.items; track $index) {
           <div class="fila-precio">
@@ -73,7 +73,7 @@
                 [ngModel]="busqueda[$index]"
                 (ngModelChange)="busqueda[$index] = $event; abrirBuscador($index)"
                 (focus)="abrirBuscador($index)"
-                placeholder="Buscar servicio..."
+                placeholder="Número de ítem o nombre..."
               />
               @if (abierto() === $index) {
                 <ul class="lista-catalogo">

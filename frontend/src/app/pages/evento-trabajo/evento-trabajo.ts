@@ -56,10 +56,15 @@ export class EventoTrabajo implements OnInit {
 
   opcionesFiltradas(i: number): ServicioCatalogo[] {
     const t = (this.busqueda[i] || '').toLowerCase().trim();
-    if (!t) return this.catalogo.slice(0, 30);
-    return this.catalogo
-      .filter((s) => s.descripcion.toLowerCase().includes(t) || String(s.codigo) === t)
-      .slice(0, 30);
+    if (!t) return this.catalogo.slice(0, 100);
+
+    // Si escribe solo números, busca por código
+    if (/^\d+$/.test(t)) {
+      return this.catalogo.filter((s) => String(s.codigo).startsWith(t));
+    }
+
+    // Si escribe texto, busca en la descripción
+    return this.catalogo.filter((s) => s.descripcion.toLowerCase().includes(t));
   }
 
   abrirBuscador(i: number) {
