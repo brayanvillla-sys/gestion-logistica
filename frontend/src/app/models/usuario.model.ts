@@ -1,4 +1,4 @@
-export type Rol = 'secretaria' | 'operador' | 'admin';
+export type Rol = 'secretaria' | 'operador' | 'admin' | 'supervisor';
 
 export interface Usuario {
   id?: string;
@@ -7,6 +7,7 @@ export interface Usuario {
   email: string;
   rol: Rol;
   dependencia?: string;
+  firma?: string;
   activo?: boolean;
   createdAt?: string;
   updatedAt?: string;

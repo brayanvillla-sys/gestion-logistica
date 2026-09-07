@@ -37,4 +37,20 @@ export class EventoService {
       `${API_URL}/eventos/${id}/fotos/${fotoId}`
     );
   }
+
+  enviarAFirma(id: string, firmasRequeridas: number) {
+    return this.http.put<Evento>(`${API_URL}/eventos/${id}/enviar-firma`, { firmasRequeridas });
+  }
+
+  firmar(id: string, firma: string, firmanteNombre: string) {
+    return this.http.put<Evento>(`${API_URL}/eventos/${id}/firmar`, { firma, firmanteNombre });
+  }
+
+  rechazarFirma(id: string, motivo: string) {
+    return this.http.put<Evento>(`${API_URL}/eventos/${id}/rechazar-firma`, { motivo });
+  }
+
+  listarParaFirma() {
+    return this.http.get<Evento[]>(`${API_URL}/eventos?estado=en_revision`);
+  }
 }

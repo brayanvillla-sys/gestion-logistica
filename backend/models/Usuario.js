@@ -22,12 +22,16 @@ const usuarioSchema = new mongoose.Schema(
     },
     rol: {
       type: String,
-      enum: ["secretaria", "operador", "admin"],
+      enum: ["secretaria", "operador", "admin", "supervisor"],
       default: "secretaria",
     },
     dependencia: {
       type: String,
       trim: true,
+      default: "",
+    },
+    firma: {
+      type: String,
       default: "",
     },
     activo: {
@@ -38,14 +42,12 @@ const usuarioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Encripta la contrasena antes de guardar
 usuarioSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Compara la contrasena del login con la encriptada
 usuarioSchema.methods.compararPassword = function (passwordIngresada) {
   return bcrypt.compare(passwordIngresada, this.password);
 };

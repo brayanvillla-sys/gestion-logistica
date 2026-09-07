@@ -33,6 +33,27 @@
         }
       </ul>
 
+      @if (esSupervisor()) {
+        <h3 class="sep">Mi firma</h3>
+        <p class="firma-nota">Sube una imagen de tu firma (PNG con fondo transparente funciona mejor). Se usará al firmar los documentos.</p>
+
+        @if (u.firma) {
+          <div class="firma-actual">
+            <img [src]="u.firma" alt="Firma guardada" />
+            <span class="firma-ok">✓ Firma guardada</span>
+          </div>
+        }
+
+        @if (mensajeFirma()) {
+          <div class="mensaje-firma">{{ mensajeFirma() }}</div>
+        }
+
+        <label class="btn-firma">
+          {{ guardandoFirma() ? 'Guardando...' : (u.firma ? 'Cambiar firma' : 'Subir firma') }}
+          <input type="file" accept="image/*" hidden (change)="alSeleccionarFirma($event)" [disabled]="guardandoFirma()" />
+        </label>
+      }
+
       <button class="btn-salir" (click)="auth.logout()">Cerrar sesión</button>
     </section>
   </div>

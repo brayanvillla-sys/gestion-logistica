@@ -78,10 +78,25 @@ const eliminarUsuario = async (req, res) => {
   }
 };
 
+// PUT /api/usuarios/mi-firma  (el propio usuario guarda su firma)
+const guardarMiFirma = async (req, res) => {
+  try {
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.usuario._id,
+      { firma: req.body.firma || "" },
+      { new: true }
+    ).select("-password");
+    res.json(usuario);
+  } catch (error) {
+    res.status(400).json({ mensaje: "Error al guardar firma", error: error.message });
+  }
+};
+
 module.exports = {
   crearUsuario,
   listarUsuarios,
   obtenerUsuario,
   actualizarUsuario,
   eliminarUsuario,
+  guardarMiFirma,
 };

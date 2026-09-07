@@ -35,6 +35,11 @@ export class Auth {
     return this.http.get<Usuario>(`${API_URL}/auth/perfil`);
   }
 
+  guardarFirma(firma: string) {
+    return this.http.put<Usuario>(`${API_URL}/usuarios/mi-firma`, { firma })
+      .pipe(tap((u) => this.actualizarUsuarioLocal(u)));
+  }
+
   logout() {
     if (this.navegador) {
       localStorage.removeItem(CLAVE_TOKEN);
@@ -47,6 +52,15 @@ export class Auth {
   obtenerToken(): string | null {
     if (!this.navegador) return null;
     return localStorage.getItem(CLAVE_TOKEN);
+  }
+
+  private actualizarUsuarioLocal(u: Usuario) {
+    const actual = this.usuarioActual();
+    const combinado = { ...actual, ...u } as Usuario;
+    if (this.navegador) {
+      localStorage.setItem(CLAVE_USUARIO, JSON.stringify(combinado));
+    }
+    this.usuarioActual.set(combinado);
   }
 
   private guardarSesion(respuesta: RespuestaAuth) {

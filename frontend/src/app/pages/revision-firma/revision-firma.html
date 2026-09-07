@@ -1,0 +1,185 @@
+<header class="cabecera">
+  <h1>Revisión y firma</h1>
+  <p class="sub">Revisa el documento completo y fírmalo o recházalo</p>
+</header>
+
+@if (error()) {
+  <div class="alerta">{{ error() }}</div>
+}
+
+@if (!hayFirma()) {
+  <div class="aviso">
+    ⚠️ No tienes una firma guardada. Ve a tu <strong>Perfil</strong> y sube tu firma antes de poder firmar documentos.
+  </div>
+}
+
+@if (cargando()) {
+  <p class="vacio">Cargando...</p>
+} @else if (eventos().length === 0) {
+  <div class="vacio-ok">
+    <h2>✓ Todo al día</h2>
+    <p>No hay eventos pendientes de firma.</p>
+  </div>
+} @else if (actual(); as ev) {
+
+  <div class="barra-navegacion">
+    <button (click)="anterior()" [disabled]="indice() === 0">← Anterior</button>
+    <span class="contador">
+      {{ indice() + 1 }} de {{ eventos().length }} · Firmas: {{ (ev.firmas || []).length }}/{{ ev.firmasRequeridas || 1 }}
+    </span>
+    <button (click)="siguiente()" [disabled]="indice() === eventos().length - 1">Siguiente →</button>
+  </div>
+
+  <!-- HOJA 1: CERTIFICACIÓN -->
+  <div class="hoja">
+    <table class="doc">
+      <tr>
+        <td class="celda-escudo" rowspan="2">
+          <img [src]="escudo" class="doc-escudo" />
+          <div class="pie-escudo">Gobernación de Risaralda</div>
+        </td>
+        <td class="celda-contrato" colspan="2">
+          "PRESTACIÓN DE SERVICIOS PARA LA ORGANIZACIÓN, ADMINISTRACIÓN Y EJECUCIÓN DE LAS ACCIONES LOGÍSTICAS TALES COMO PUBLICIDAD, PROMOCIÓN, DIVULGACIÓN, ALOJAMIENTO, ACTIVIDADES INSTITUCIONALES, TALLERES DE REUNIONES DE TRABAJO Y DEMÁS ACTIVIDADES QUE REQUIERAN LAS SECRETARÍAS DEL DEPARTAMENTO DE RISARALDA"
+        </td>
+      </tr>
+      <tr>
+        <td class="titulo-doc" colspan="2">CERTIFICACIÓN DE SERVICIOS PRESTADOS A ENTERA SATISFACCIÓN<br><span class="email">E-MAIL: LOGISTICAGOBERNACIONRDA2024&#64;GMAIL.COM</span></td>
+      </tr>
+      <tr><td class="et">SECRETARIA ENCARGADA:</td><td class="val" colspan="2">{{ ev.dependencia }}</td></tr>
+      <tr><td class="et">NOMBRE DEL EVENTO:</td><td class="val" colspan="2">{{ ev.nombre }}</td></tr>
+      <tr><td class="et">FECHA:</td><td class="val" colspan="2">{{ ev.fecha | date: 'dd \'DE\' MMMM \'DE\' yyyy' }}</td></tr>
+      <tr><td class="et">LUGAR:</td><td class="val" colspan="2">{{ ev.lugar }}</td></tr>
+      <tr><td class="cod" colspan="3">{{ ev.codigoAlojamiento }}</td></tr>
+      <tr><td class="pr" colspan="1">PROYECTO. {{ ev.proyecto }}</td><td class="pr" colspan="2">RUBRO: {{ ev.rubro }}</td></tr>
+    </table>
+
+    <table class="doc doc-items">
+      <thead><tr><th style="width:12%">ÍTEM</th><th>REQUERIMIENTOS</th><th style="width:22%">CANTIDAD</th></tr></thead>
+      <tbody>
+        @for (item of ev.items; track $index) {
+          <tr><td class="c">{{ item.numero }}</td><td>{{ item.descripcion || item.categoria }}</td><td class="c">{{ item.cantidad }}</td></tr>
+        }
+        <tr class="fila-vacia"><td></td><td></td><td></td></tr>
+        <tr class="fila-firma">
+          <td colspan="3">
+            <div class="firmas-fila">
+              @for (esp of espaciosFirma(ev); track $index) {
+                <div class="firma-bloque">
+                  @if (esp.firma) { <img [src]="esp.firma" class="img-firma" /> }
+                  <div class="linea-firma"></div>
+                  <div class="nombre-firma">{{ esp.nombre || 'Vo.Bo. Supervisor(a)' }}</div>
+                  <div class="cargo-firma">Vo.Bo. Supervisor(a)</div>
+                </div>
+              }
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- HOJA 2: FOTOS -->
+  <div class="hoja">
+    <table class="doc">
+      <tr>
+        <td class="celda-escudo" rowspan="2">
+          <img [src]="escudo" class="doc-escudo" />
+          <div class="pie-escudo">Gobernación de Risaralda</div>
+        </td>
+        <td class="celda-contrato">
+          "PRESTACIÓN DE SERVICIOS PARA LA ORGANIZACIÓN, ADMINISTRACIÓN Y EJECUCIÓN DE LAS ACCIONES LOGÍSTICAS TALES COMO PUBLICIDAD, PROMOCIÓN, DIVULGACIÓN, ALOJAMIENTO, ACTIVIDADES INSTITUCIONALES, TALLERES DE REUNIONES DE TRABAJO Y DEMÁS ACTIVIDADES QUE REQUIERAN LAS SECRETARÍAS DEL DEPARTAMENTO DE RISARALDA"
+        </td>
+      </tr>
+      <tr><td class="titulo-doc">REGISTRO FOTOGRÁFICO - EVIDENCIA</td></tr>
+      <tr><td class="et">NOMBRE DEL EVENTO:</td><td class="val">{{ ev.nombre }}</td></tr>
+      <tr><td class="et">FECHA:</td><td class="val">{{ ev.fecha | date: 'dd \'DE\' MMMM \'DE\' yyyy' }}</td></tr>
+      <tr><td class="et">LUGAR:</td><td class="val">{{ ev.lugar }}</td></tr>
+    </table>
+
+    @if (ev.fotos && ev.fotos.length > 0) {
+      <div class="doc-fotos">
+        @for (foto of ev.fotos; track foto._id) {
+          <img [src]="servidor + foto.url" class="doc-foto" />
+        }
+      </div>
+    } @else {
+      <p class="doc-sin-fotos">Sin fotos de evidencia.</p>
+    }
+  </div>
+
+  <!-- HOJA 3: SOLICITUD -->
+  <div class="hoja">
+    <table class="doc">
+      <tr>
+        <td class="celda-escudo" rowspan="2">
+          <img [src]="escudo" class="doc-escudo" />
+          <div class="pie-escudo">Gobernación de Risaralda</div>
+        </td>
+        <td class="celda-contrato" colspan="4">
+          "PRESTACIÓN DE SERVICIOS PARA LA ORGANIZACIÓN, ADMINISTRACIÓN Y EJECUCIÓN DE LAS ACCIONES LOGÍSTICAS TALES COMO PUBLICIDAD, PROMOCIÓN, DIVULGACIÓN, ALOJAMIENTO, ACTIVIDADES INSTITUCIONALES, TALLERES DE REUNIONES DE TRABAJO Y DEMÁS ACTIVIDADES QUE REQUIERAN LAS SECRETARÍAS DEL DEPARTAMENTO DE RISARALDA"
+        </td>
+      </tr>
+      <tr>
+        <td class="titulo-doc" colspan="4">SOLICITUD DE SERVICIOS<br><span class="email">E-MAIL: LOGISTICAGOBERNACIONRDA2024&#64;GMAIL.COM</span></td>
+      </tr>
+      <tr><td class="et">SECRETARIA ENCARGADA:</td><td class="val" colspan="4">{{ ev.dependencia }}</td></tr>
+      <tr><td class="et">NOMBRE DEL EVENTO:</td><td class="val" colspan="4">{{ ev.nombre }}</td></tr>
+      <tr><td class="et">FECHA:</td><td class="val" colspan="4">{{ ev.fecha | date: 'dd \'DE\' MMMM \'DE\' yyyy' }}</td></tr>
+      <tr><td class="et">LUGAR:</td><td class="val" colspan="4">{{ ev.lugar }}</td></tr>
+      <tr><td class="cod" colspan="5">{{ ev.codigoAlojamiento }}</td></tr>
+      <tr><td class="pr" colspan="2">PROYECTO. {{ ev.proyecto }}</td><td class="pr" colspan="3">RUBRO: {{ ev.rubro }}</td></tr>
+    </table>
+
+    <table class="doc doc-items">
+      <thead>
+        <tr>
+          <th style="width:10%">ÍTEM</th>
+          <th>REQUERIMIENTOS</th>
+          <th style="width:15%">VALOR UNIDAD IVA INCLUIDO</th>
+          <th style="width:12%">CANTIDAD</th>
+          <th style="width:15%">VALOR TOTAL IVA INCLUIDO</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of ev.items; track $index) {
+          <tr>
+            <td class="c">{{ item.numero }}</td>
+            <td>{{ item.descripcion || item.categoria }}</td>
+            <td class="r">{{ item.valorUnidad | currency: 'COP':'symbol-narrow':'1.0-0' }}</td>
+            <td class="c">{{ item.cantidad }}</td>
+            <td class="r">{{ totalItem(item) | currency: 'COP':'symbol-narrow':'1.0-0' }}</td>
+          </tr>
+        }
+        <tr class="fila-total">
+          <td colspan="3"></td>
+          <td class="c">TOTAL</td>
+          <td class="r">{{ totalEvento(ev) | currency: 'COP':'symbol-narrow':'1.0-0' }}</td>
+        </tr>
+        <tr class="fila-firma">
+          <td colspan="5">
+            <div class="firmas-fila">
+              @for (esp of espaciosFirma(ev); track $index) {
+                <div class="firma-bloque">
+                  @if (esp.firma) { <img [src]="esp.firma" class="img-firma" /> }
+                  <div class="linea-firma"></div>
+                  <div class="nombre-firma">{{ esp.nombre || 'Vo.Bo. Supervisor(a)' }}</div>
+                  <div class="cargo-firma">Vo.Bo. Supervisor(a)</div>
+                </div>
+              }
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="acciones">
+    @if (yaFirme()) {
+      <span class="ya-firme">✓ Ya firmaste este evento. Falta otra firma.</span>
+    }
+    <button class="btn-rechazar" (click)="rechazar()" [disabled]="procesando()">Rechazar</button>
+    <button class="btn-firmar" (click)="firmar()" [disabled]="procesando() || !hayFirma() || yaFirme()">
+      {{ procesando() ? 'Procesando...' : '✓ Aprobar y firmar' }}
+    </button>
+  </div>
+}

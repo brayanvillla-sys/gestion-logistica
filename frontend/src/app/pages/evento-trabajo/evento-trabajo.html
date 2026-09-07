@@ -101,10 +101,25 @@
         <div class="total-final">TOTAL: <strong>{{ totalGeneral() | currency: 'COP':'symbol-narrow':'1.0-0' }}</strong></div>
       </section>
 
+      <section class="bloque">
+        <h2>Firmas requeridas</h2>
+        <p class="nota">¿Cuántas supervisoras deben firmar este evento?</p>
+        <div class="opciones-firma">
+          <button type="button" class="chip-firma" [class.activo]="firmasRequeridas() === 1" (click)="firmasRequeridas.set(1)">1 firma</button>
+          <button type="button" class="chip-firma" [class.activo]="firmasRequeridas() === 2" (click)="firmasRequeridas.set(2)">2 firmas</button>
+        </div>
+        <p class="estado-firmas">
+          Firmas recibidas: {{ (ev.firmas || []).length }} de {{ ev.firmasRequeridas || 1 }}
+          @if (ev.estado === 'certificado') { · <strong style="color:#059669">CERTIFICADO ✓</strong> }
+          @else if (ev.estado === 'en_revision') { · <strong style="color:#92400e">EN REVISIÓN</strong> }
+        </p>
+      </section>
+
       <div class="barra-guardar">
-        <button class="btn-guardar" (click)="guardar()" [disabled]="guardando()">
-          {{ guardando() ? 'Guardando...' : 'Guardar todo' }}
+        <button class="btn-guardar-sec" (click)="guardar()" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Guardar' }}
         </button>
+        <button class="btn-guardar" (click)="enviarAFirma()">Enviar a firma →</button>
       </div>
     </div>
 
@@ -167,12 +182,20 @@
               </tr>
             }
             <tr class="fila-vacia"><td></td><td></td><td></td></tr>
-            <tr class="fila-vacia"><td></td><td></td><td></td></tr>
             <tr class="fila-firma">
               <td colspan="3">
-                <div class="linea-firma"></div>
-                <div class="nombre-firma">{{ ev.firmanteNombre || 'LITZA FERNANDA ROLDAN RAMÍREZ' }}</div>
-                <div class="cargo-firma">Vo.Bo. Supervisora</div>
+                <div class="firmas-fila">
+                  @for (esp of espaciosFirma(); track $index) {
+                    <div class="firma-bloque">
+                      @if (esp.firma) {
+                        <img [src]="esp.firma" class="img-firma" />
+                      }
+                      <div class="linea-firma"></div>
+                      <div class="nombre-firma">{{ esp.nombre || 'Vo.Bo. Supervisor(a)' }}</div>
+                      <div class="cargo-firma">Vo.Bo. Supervisor(a)</div>
+                    </div>
+                  }
+                </div>
               </td>
             </tr>
           </tbody>
@@ -293,9 +316,18 @@
             </tr>
             <tr class="fila-firma">
               <td colspan="5">
-                <div class="linea-firma"></div>
-                <div class="nombre-firma">{{ ev.firmanteNombre || 'LITZA FERNANDA ROLDAN RAMÍREZ' }}</div>
-                <div class="cargo-firma">Vo.Bo. Supervisora</div>
+                <div class="firmas-fila">
+                  @for (esp of espaciosFirma(); track $index) {
+                    <div class="firma-bloque">
+                      @if (esp.firma) {
+                        <img [src]="esp.firma" class="img-firma" />
+                      }
+                      <div class="linea-firma"></div>
+                      <div class="nombre-firma">{{ esp.nombre || 'Vo.Bo. Supervisor(a)' }}</div>
+                      <div class="cargo-firma">Vo.Bo. Supervisor(a)</div>
+                    </div>
+                  }
+                </div>
               </td>
             </tr>
           </tbody>

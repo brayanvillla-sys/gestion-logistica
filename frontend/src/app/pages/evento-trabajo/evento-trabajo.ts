@@ -32,6 +32,8 @@ export class EventoTrabajo implements OnInit {
   mensaje = signal('');
   subiendoFotos = signal(false);
 
+  firmasRequeridas = signal(1);
+
   busqueda: { [i: number]: string } = {};
   abierto = signal<number | null>(null);
 
@@ -45,6 +47,7 @@ export class EventoTrabajo implements OnInit {
     this.eventoServicio.obtener(id).subscribe({
       next: (ev) => {
         this.evento.set(ev);
+        this.firmasRequeridas.set(ev.firmasRequeridas || 1);
         this.cargando.set(false);
       },
       error: (e) => {
@@ -57,13 +60,9 @@ export class EventoTrabajo implements OnInit {
   opcionesFiltradas(i: number): ServicioCatalogo[] {
     const t = (this.busqueda[i] || '').toLowerCase().trim();
     if (!t) return this.catalogo.slice(0, 100);
-
-    // Si escribe solo números, busca por código
     if (/^\d+$/.test(t)) {
       return this.catalogo.filter((s) => String(s.codigo).startsWith(t));
     }
-
-    // Si escribe texto, busca en la descripción
     return this.catalogo.filter((s) => s.descripcion.toLowerCase().includes(t));
   }
 
@@ -160,6 +159,33 @@ export class EventoTrabajo implements OnInit {
     });
   }
 
+  enviarAFirma() {
+    const ev = this.evento();
+    if (!ev?._id) return;
+    const num = this.firmasRequeridas();
+    if (!confirm(`¿Enviar a firma con ${num} firma(s) requerida(s)?`)) return;
+
+    // Primero guarda los items y precios, luego cambia el estado a "en revision"
+    this.eventoServicio.actualizar(ev._id, {
+      proyecto: ev.proyecto,
+      rubro: ev.rubro,
+      codigoAlojamiento: ev.codigoAlojamiento,
+      items: ev.items,
+      valorTotal: this.totalGeneral(),
+    }).subscribe({
+      next: () => {
+        this.eventoServicio.enviarAFirma(ev._id!, num).subscribe({
+          next: (act) => {
+            this.evento.set(act);
+            this.mensaje.set('Enviado a firma correctamente');
+          },
+          error: (e) => this.mensaje.set(e.error?.mensaje ?? 'No se pudo enviar'),
+        });
+      },
+      error: (e) => this.mensaje.set(e.error?.mensaje ?? 'No se pudo guardar antes de enviar'),
+    });
+  }
+
   alSeleccionarFotos(evt: Event) {
     const input = evt.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -188,6 +214,22 @@ export class EventoTrabajo implements OnInit {
       next: (r) => this.evento.set(r.evento),
       error: (e) => this.mensaje.set(e.error?.mensaje ?? 'No se pudo eliminar'),
     });
+  }
+
+  espaciosFirma(): { firma: string; nombre: string }[] {
+    const ev = this.evento();
+    if (!ev) return [];
+    const total = ev.firmasRequeridas || 1;
+    const firmas = ev.firmas || [];
+    const espacios: { firma: string; nombre: string }[] = [];
+    for (let i = 0; i < total; i++) {
+      if (firmas[i]) {
+        espacios.push({ firma: firmas[i].firma, nombre: firmas[i].firmanteNombre || '' });
+      } else {
+        espacios.push({ firma: '', nombre: '' });
+      }
+    }
+    return espacios;
   }
 
   descargarPdf(idHoja: string, nombre: string) {

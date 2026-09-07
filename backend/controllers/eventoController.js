@@ -12,7 +12,6 @@ const crearEvento = async (req, res) => {
       return res.status(404).json({ mensaje: "La solicitud no existe" });
     }
 
-    // Copia los items de la solicitud, numerados y con valor en 0
     const itemsHeredados = solicitud.items.map((it, i) => ({
       numero: i + 1,
       categoria: it.categoria,
@@ -78,7 +77,6 @@ const obtenerEvento = async (req, res) => {
   }
 };
 
-// GET /api/eventos/por-solicitud/:solicitudId
 const obtenerPorSolicitud = async (req, res) => {
   try {
     const evento = await Evento.findOne({ solicitud: req.params.solicitudId })
@@ -121,7 +119,6 @@ const eliminarEvento = async (req, res) => {
   }
 };
 
-// POST /api/eventos/:id/fotos
 const subirFotos = async (req, res) => {
   try {
     const evento = await Evento.findById(req.params.id);
@@ -146,7 +143,6 @@ const subirFotos = async (req, res) => {
   }
 };
 
-// DELETE /api/eventos/:id/fotos/:fotoId
 const eliminarFoto = async (req, res) => {
   try {
     const evento = await Evento.findById(req.params.id);
@@ -173,6 +169,75 @@ const eliminarFoto = async (req, res) => {
   }
 };
 
+// PUT /api/eventos/:id/enviar-firma
+const enviarAFirma = async (req, res) => {
+  try {
+    const firmasRequeridas = req.body.firmasRequeridas === 2 ? 2 : 1;
+    const evento = await Evento.findByIdAndUpdate(
+      req.params.id,
+      { estado: "en_revision", firmasRequeridas, firmas: [] },
+      { new: true }
+    );
+    if (!evento) {
+      return res.status(404).json({ mensaje: "Evento no encontrado" });
+    }
+    res.json(evento);
+  } catch (error) {
+    res.status(400).json({ mensaje: "Error al enviar a firma", error: error.message });
+  }
+};
+
+// PUT /api/eventos/:id/firmar
+const firmarEvento = async (req, res) => {
+  try {
+    const evento = await Evento.findById(req.params.id);
+    if (!evento) {
+      return res.status(404).json({ mensaje: "Evento no encontrado" });
+    }
+
+    // Evitar que la misma persona firme dos veces
+    const yaFirmo = evento.firmas.some(
+      (f) => String(f.firmanteId) === String(req.usuario._id)
+    );
+    if (yaFirmo) {
+      return res.status(400).json({ mensaje: "Ya firmaste este evento" });
+    }
+
+    evento.firmas.push({
+      firma: req.body.firma || "",
+      firmanteNombre: req.body.firmanteNombre || "",
+      firmanteId: req.usuario._id,
+    });
+
+    // Si ya alcanzó las firmas requeridas, queda certificado
+    if (evento.firmas.length >= evento.firmasRequeridas) {
+      evento.estado = "certificado";
+    }
+
+    await evento.save();
+    res.json(evento);
+  } catch (error) {
+    res.status(400).json({ mensaje: "Error al firmar", error: error.message });
+  }
+};
+
+// PUT /api/eventos/:id/rechazar-firma
+const rechazarFirma = async (req, res) => {
+  try {
+    const evento = await Evento.findByIdAndUpdate(
+      req.params.id,
+      { estado: "programado", observaciones: req.body.motivo || "", firmas: [] },
+      { new: true }
+    );
+    if (!evento) {
+      return res.status(404).json({ mensaje: "Evento no encontrado" });
+    }
+    res.json(evento);
+  } catch (error) {
+    res.status(400).json({ mensaje: "Error al rechazar", error: error.message });
+  }
+};
+
 module.exports = {
   crearEvento,
   listarEventos,
@@ -182,4 +247,7 @@ module.exports = {
   eliminarEvento,
   subirFotos,
   eliminarFoto,
+  enviarAFirma,
+  firmarEvento,
+  rechazarFirma,
 };

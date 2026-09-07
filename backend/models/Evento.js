@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Ítems del evento: los mismos de la solicitud, pero el operador les pone precio y orden
 const itemEventoSchema = new mongoose.Schema(
   {
     numero: { type: Number, default: 0 },
@@ -8,6 +7,16 @@ const itemEventoSchema = new mongoose.Schema(
     descripcion: { type: String, trim: true, default: "" },
     cantidad: { type: Number, required: true, min: 1 },
     valorUnidad: { type: Number, default: 0, min: 0 },
+  },
+  { _id: false }
+);
+
+const firmaSchema = new mongoose.Schema(
+  {
+    firma: { type: String, required: true },
+    firmanteNombre: { type: String, trim: true, default: "" },
+    firmanteId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },
+    fecha: { type: Date, default: Date.now },
   },
   { _id: false }
 );
@@ -44,7 +53,7 @@ const eventoSchema = new mongoose.Schema(
     },
     estado: {
       type: String,
-      enum: ["programado", "en_ejecucion", "finalizado", "certificado"],
+      enum: ["programado", "en_revision", "en_ejecucion", "finalizado", "certificado"],
       default: "programado",
     },
     valorTotal: {
@@ -83,14 +92,15 @@ const eventoSchema = new mongoose.Schema(
         subidaEn: { type: Date, default: Date.now },
       },
     ],
-    firma: {
-      type: String,
-      default: "",
+    firmasRequeridas: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 2,
     },
-    firmanteNombre: {
-      type: String,
-      trim: true,
-      default: "",
+    firmas: {
+      type: [firmaSchema],
+      default: [],
     },
   },
   { timestamps: true }

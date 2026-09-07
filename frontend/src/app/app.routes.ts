@@ -5,6 +5,7 @@ import { Registro } from './pages/registro/registro';
 import { Panel } from './pages/panel/panel';
 import { Operacion } from './pages/operacion/operacion';
 import { EventoTrabajo } from './pages/evento-trabajo/evento-trabajo';
+import { RevisionFirma } from './pages/revision-firma/revision-firma';
 import { Perfil } from './pages/perfil/perfil';
 import { SobreNosotros } from './pages/sobre-nosotros/sobre-nosotros';
 import { authGuard, rolGuard } from './guards/auth-guard';
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'panel', component: Panel, canActivate: [authGuard] },
   { path: 'operacion', component: Operacion, canActivate: [authGuard, rolGuard('operador', 'admin')] },
   { path: 'operacion/evento/:id', component: EventoTrabajo, canActivate: [authGuard, rolGuard('operador', 'admin')] },
+  { path: 'revision', component: RevisionFirma, canActivate: [authGuard, rolGuard('supervisor', 'admin')] },
   { path: 'perfil', component: Perfil, canActivate: [authGuard] },
   { path: '**', redirectTo: '' },
 ];

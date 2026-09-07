@@ -10,6 +10,9 @@
       @if (auth.rol() === 'operador' || auth.rol() === 'admin') {
         <a routerLink="/operacion" routerLinkActive="activo">Operación</a>
       }
+      @if (auth.rol() === 'supervisor' || auth.rol() === 'admin') {
+        <a routerLink="/revision" routerLinkActive="activo">Revisión y firma</a>
+      }
       <a routerLink="/perfil" routerLinkActive="activo">Perfil</a>
     }
 
