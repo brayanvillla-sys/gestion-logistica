@@ -25,5 +25,5 @@ app.use("/api/eventos", require("./routes/eventoRoutes"));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en 159.223.175.81:${PORT}`);
 });
